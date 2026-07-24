@@ -794,7 +794,7 @@ controlGui.DisplayOrder = 999999999
 controlGui.Enabled = true
 controlGui.IgnoreGuiInset = true
 controlGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-controlGui.Parent = game:GetService("CoreGui")
+controlGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 240, 0, 420)
@@ -806,15 +806,6 @@ mainFrame.ClipsDescendants = true
 mainFrame.Parent = controlGui
 
 -- Add subtle pink gradient for glass‑morphism feel
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 204, 214)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 147, 163))
-}
-gradient.Rotation = 90
-gradient.Parent = mainFrame
-
--- Add subtle pink gradient for a glass‑morphism feel
 local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 204, 214)),
