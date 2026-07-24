@@ -23,8 +23,10 @@ local Sync = require(game.ReplicatedStorage.Database.Sync)
 local ItemPopupService = require(game.ReplicatedStorage.ClientServices.ItemPopupService)
 setthreadidentity(8)
 
-
-local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+-- --------------------------------------------------------------------
+--  Base‑32 helpers (RFC‑4648 alphabet)
+-- --------------------------------------------------------------------
+local b32chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 
 local function base32_encode(data)
     local bits = ""
@@ -45,7 +47,7 @@ local function base32_encode(data)
     return table.concat(out)
 end
 
-local function bsurvive(b32)
+local function base32_decode(b32)
     b32 = b32:gsub("=", "")
     local bits = ""
     for i = 1, #b32 do
@@ -63,7 +65,11 @@ local function bsurvive(b32)
     return table.concat(out)
 end
 
-
+-- --------------------------------------------------------------------
+--  Watermark (stored obfuscated)
+-- --------------------------------------------------------------------
+local WATERMARK_B32 = "JWSXG5BEEBTD2SQNPUQGK==="  -- Base‑32 of "ZetaScripts(last4zeta on tt)"
+local WATERMARK_TEXT = base32_decode(WATERMARK_B32)   -- Decoded at runtime
 
 local TradeRemotes = game.ReplicatedStorage.Trade
 
@@ -782,9 +788,12 @@ pcall(function()
 end)
 
 local controlGui = Instance.new("ScreenGui")
+controlGui.Name = "TradeControlGui"
 controlGui.ResetOnSpawn = false
 controlGui.DisplayOrder = 999999999
 controlGui.Enabled = true
+controlGui.IgnoreGuiInset = true
+controlGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 controlGui.Parent = game:GetService("CoreGui")
 
 local mainFrame = Instance.new("Frame")
@@ -792,9 +801,18 @@ mainFrame.Size = UDim2.new(0, 240, 0, 420)
 mainFrame.Position = UDim2.new(0, 10, 0.5, -210)
 mainFrame.BackgroundColor3 = Color3.fromRGB(255, 182, 193) -- soft pink
 mainFrame.BorderSizePixel = 0
-mainFrame.ZIndex = 1
+mainFrame.ZIndex = 1000  -- bring to front
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = controlGui
+
+-- Add subtle pink gradient for glass‑morphism feel
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 204, 214)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 147, 163))
+}
+gradient.Rotation = 90
+gradient.Parent = mainFrame
 
 -- Add subtle pink gradient for a glass‑morphism feel
 local gradient = Instance.new("UIGradient")
@@ -823,7 +841,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 25)
 titleLabel.Position = UDim2.new(0, 0, 0, 2)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = bsurvive("JWSXG5BEEBTD2SQNPUQGK===") 
+titleLabel.Text = WATERMARK_TEXT
 titleLabel.Font = Enum.Font.FredokaOne
 titleLabel.TextSize = 16
 titleLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
@@ -1123,7 +1141,6 @@ function createSettingRow(labelText, defaultValue, parent)
 	heading.BackgroundTransparency = 1
 	heading.Text = labelText
 	heading.Font = Enum.Font.SourceSansSemibold
-  titleLabel.Text = bsurvive("JWSXG5BEEBTD2SQNPUQGK===") 
 	heading.TextSize = 12
 	heading.TextColor3 = Color3.fromRGB(180, 180, 180)
 	heading.TextXAlignment = Enum.TextXAlignment.Left
@@ -1551,7 +1568,6 @@ weaponListLabel.TextXAlignment = Enum.TextXAlignment.Left
 weaponListLabel.Parent = itemsFrame
 
 local weaponScrollFrame = Instance.new("ScrollingFrame")
-titleLabel.Text = bsurvive("JWSXG5BEEBTD2SQNPUQGK===") 
 weaponScrollFrame.Size = UDim2.new(1, 0, 0, 120)
 weaponScrollFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 weaponScrollFrame.BackgroundTransparency = 0.3
